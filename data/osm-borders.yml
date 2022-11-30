@@ -1,0 +1,14 @@
+countries:
+  Madagascar:
+    - name: "Antananarivo Province"
+      areasIds: [3203754]
+    - name: "Antsiranana Province"
+      areasIds: [3247585]
+    - name: "Fianarantsoa Province"
+      areasIds: [3203751]
+    - name: "Mahajanga province"
+      areasIds: [3203752]
+    - name: "Toamasina Province"
+      areasIds: [3203753]
+    - name: "Toliara Province"
+      areasIds: [3203749]
