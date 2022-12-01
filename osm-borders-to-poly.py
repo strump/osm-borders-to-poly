@@ -30,8 +30,8 @@ def loadCountryPolys(countryName, countryConf, outPath):
         areasIds = regionConf["areasIds"]
         print(f"Writing region '{countryName} {name}' ...")
         closedLines = loadOsmCoordinates(areasIds)
-        #writePoly(closedLines, f"{countryName}-{name}", f"{outPath}/{countryName}-{name}.poly")
-        writeGPX(closedLines, f"{countryName}-{name}", f"{outPath}/{countryName}-{name}.gpx")
+        writePoly(closedLines, f"{countryName}-{name}", f"{outPath}/{countryName}-{name}.poly")
+        #writeGPX(closedLines, f"{countryName}-{name}", f"{outPath}/{countryName}-{name}.gpx")
 
 def loadOsmCoordinates(areasIds: List[int]) -> Iterator[Iterator[Tuple[Decimal, Decimal]]]:
     relAreas = [loadRelation(id) for id in areasIds]
@@ -114,7 +114,7 @@ def writePoly(closedLines:Iterator[Iterator[Tuple[Decimal, Decimal]]], mapName:s
         for coordinates in closedLines:
             fout.write(f"{i}\n")
             for lat,lon in coordinates:
-                fout.write(f"\t{lat:.6E}\t{lon:.6E}\n")
+                fout.write(f"\t{lon:.6E}\t{lat:.6E}\n")
             fout.write("END\n")
             i += 1
         fout.write("END\n")
