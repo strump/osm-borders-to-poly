@@ -1,10 +1,14 @@
-from collections import defaultdict
 from decimal import Decimal
-from typing import List, Tuple, Iterator
+from typing import List, Tuple, Iterator, Dict
 from urllib.request import urlopen
+from enum import Enum
 
 import json
 import yaml
+
+class OutputFormat(Enum):
+    POLY = 1
+    GPX = 2
 
 class BorderSegment:
     def __init__(self, wayId:int, points: List[Tuple[Decimal, Decimal]]):
@@ -23,15 +27,17 @@ class BorderSegment:
 def loadConfig(configPath: str):
     return yaml.full_load(open(configPath))
 
-def loadCountryPolys(countryName, countryConf, outPath):
+def loadCountryPolys(countryName:str, countryConf:Dict, outPath:str, outFormat:OutputFormat):
     print(f"Writing country '{countryName}':")
     for regionConf in countryConf:
         name = regionConf["name"]
         areasIds = regionConf["areasIds"]
         print(f"Writing region '{countryName} {name}' ...")
         closedLines = loadOsmCoordinates(areasIds)
-        writePoly(closedLines, f"{countryName}-{name}", f"{outPath}/{countryName}-{name}.poly")
-        #writeGPX(closedLines, f"{countryName}-{name}", f"{outPath}/{countryName}-{name}.gpx")
+        if outFormat == OutputFormat.POLY:
+            writePoly(closedLines, f"{countryName}_{name}", f"{outPath}/{countryName}_{name}.poly")
+        else:
+            writeGPX(closedLines, f"{countryName}_{name}", f"{outPath}/{countryName}_{name}.gpx")
 
 def loadOsmCoordinates(areasIds: List[int]) -> Iterator[Iterator[Tuple[Decimal, Decimal]]]:
     relAreas = [loadRelation(id) for id in areasIds]
@@ -55,9 +61,11 @@ def loadRelation(id: int) -> List[BorderSegment]:
         segments.append(BorderSegment(wayId, coords))
     return segments
 
+# Use Decimal type instead of float
 def parse_json_float(float_str: str):
     return Decimal(float_str)
 
+# Extract all relations, ways and nodes from JSON response
 def parseRelationJson(stream):
     rawData = json.load(stream, parse_float=parse_json_float)
     objects = {"relation": dict(),
@@ -69,6 +77,7 @@ def parseRelationJson(stream):
         objects[elementType][elementId] = element
     return objects
 
+# Merge list of ways into closed polygons
 def mergeAreas(areas: List[List[BorderSegment]]) -> Iterator[List[BorderSegment]]:
     #TODO: deduplicate areas
     segments = []
@@ -146,5 +155,5 @@ def writeGPX(closedLines:Iterator[Iterator[Tuple[Decimal, Decimal]]], mapName:st
 if __name__ == '__main__':
     config = loadConfig("data/osm-borders.yml")
     for countryName, countryConfig in config["countries"].items():
-        loadCountryPolys(countryName, countryConfig, "data/poly")
+        loadCountryPolys(countryName, countryConfig, "data/poly", OutputFormat.POLY)
     print("Done!")

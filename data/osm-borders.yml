@@ -1,7 +1,7 @@
 countries:
   Madagascar:
     - name: "Antananarivo Province"
-      areasIds: [3203754]
+      areasIds: [3203754] # List of OSM relations IDs
     - name: "Antsiranana Province"
       areasIds: [3247585]
     - name: "Fianarantsoa Province"
